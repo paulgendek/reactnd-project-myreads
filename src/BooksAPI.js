@@ -22,6 +22,11 @@ export const getAll = () =>
     .then(res => res.json())
     .then(data => data.books)
 
+export const remove = (book) =>
+  fetch(`${api}/books/${book.id}`, { method: 'DELETE', headers })
+    .then(res => res.json())
+    .then(data => data.book)
+
 export const update = (book, shelf) =>
   fetch(`${api}/books/${book.id}`, {
     method: 'PUT',
