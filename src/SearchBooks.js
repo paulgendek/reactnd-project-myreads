@@ -1,18 +1,23 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import Book from './Book';
-import PropTypes from 'prop-types';
+import sortBy from 'sort-by'
+import Book from './Book'
+import PropTypes from 'prop-types'
 
 class SearchBooks extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      query: ''
+    };
+  }
+
   static propTypes = {
     books: PropTypes.array.isRequired,
     onSearchBooks: PropTypes.func.isRequired,
     onUpdateBook: PropTypes.func.isRequired,
     onClearResults: PropTypes.func.isRequired
-  };
-
-  state = {
-    query: ''
   };
 
   updateQuery = (query) => {
@@ -32,6 +37,8 @@ class SearchBooks extends Component {
     if (results) {
       showingBooks = results.length ? results : []
     }
+
+    showingBooks.sort(sortBy('title'));
 
     return (
       <div className="search-books">

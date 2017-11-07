@@ -1,32 +1,39 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
+import { debounce } from 'lodash'
+import sortBy from 'sort-by'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import SearchBooks from './SearchBooks'
 import ListBooks from './ListBooks'
 
-class BooksApp extends React.Component {
-  state = {
-    books: [],
-    results: [],
-    shelves: [
-      {
-        title: 'Currently Reading',
-        name: 'currentlyReading'
-      },
-      {
-        title: 'Want to Read',
-        name: 'wantToRead'
-      },
-      {
-        title: 'Read',
-        name: 'read'
-      }
-    ]
-  };
+class BooksApp extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      books: [],
+      results: [],
+      shelves: [
+        {
+          title: 'Currently Reading',
+          name: 'currentlyReading'
+        },
+        {
+          title: 'Want to Read',
+          name: 'wantToRead'
+        },
+        {
+          title: 'Read',
+          name: 'read'
+        }
+      ]
+    };
+  }
 
   componentDidMount() {
     BooksAPI.getAll().then((books) => {
+      books.sort(sortBy('title'));
       this.setState({books})
     })
   }
@@ -34,16 +41,17 @@ class BooksApp extends React.Component {
   updateBook = (book, shelf) => {
     BooksAPI.update(book, shelf).then(() => {
       book.shelf = shelf;
-      this.setState(state => {
+      this.setState(prevState => {
         // push new books to state
-        if (state.books.findIndex(b => b.id === book.id) === -1) {
-          state.books.push(book)
+        if (prevState.books.findIndex(b => b.id === book.id) === -1) {
+          prevState.books.push(book);
+          prevState.books.sort(sortBy('title'))
         }
       })
     })
   };
 
-  searchBooks = (query) => {
+  searchBooks = debounce((query) => {
     if (query) {
       BooksAPI.search(query).then((results) => {
         if (results.length) {
@@ -53,7 +61,7 @@ class BooksApp extends React.Component {
         this.setState({results})
       })
     }
-  };
+  }, 150);
 
   clearResults = () => {
     this.setState({results: []})
